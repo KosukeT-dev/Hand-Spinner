@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star-shaped Hand Spinner</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #spinner {
+            width: 200px;
+            height: 200px;
+            background-color: #FFD700;
+            clip-path: polygon(
+                50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 
+                50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
+            );
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
+        }
+        #spinner::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #FF4500;
+            border-radius: 50%;
+            top: calc(50% - 10px);
+            left: calc(50% - 10px);
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        Click or tap to spin!<br>
+        <span id="speed">0</span> RPM
+    </div>
+    <div id="spinner"></div>
+
+    <script>
+        const spinner = document.getElementById('spinner');
+        const speedDisplay = document.getElementById('speed');
+        let angle = 0;
+        let speed = 0;
+        let lastTime = null;
+        let spinning = false;
+
+        function spin(time) {
+            if (lastTime !== null) {
+                const deltaTime = (time - lastTime) / 1000;
+                angle += speed * deltaTime;
+                speed *= 0.99; // Apply friction
+                spinner.style.transform = `rotate(${angle}deg)`;
+                
+                const rpm = Math.round((speed / 360) * 60);
+                speedDisplay.textContent = rpm;
+
+                if (speed < 1) {
+                    spinning = false;
+                    return;
+                }
+            }
+            lastTime = time;
+            if (spinning) {
+                requestAnimationFrame(spin);
+            }
+        }
+
+        spinner.addEventListener('mousedown', startSpin);
+        spinner.addEventListener('touchstart', startSpin);
+
+        function startSpin(e) {
+            e.preventDefault(); // Prevent default touch behavior
+            speed += 1000 + Math.random() * 1000;
+            if (!spinning) {
+                spinning = true;
+                lastTime = null;
+                requestAnimationFrame(spin);
+            }
+        }
+    </script>
+</body>
+</html>
